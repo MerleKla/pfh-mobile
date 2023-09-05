@@ -9,30 +9,31 @@
 
     <ImageView
         android:id="@+id/idIVLogo"
-        android:layout_width="170dp"
-        android:layout_height="170dp"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_marginTop="20dp"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="150dp"
         android:src="@drawable/scanner" />
 
     <TextView
         android:id="@+id/textView"
         android:layout_width="250dp"
-        android:layout_height="80dp"
+        android:layout_height="240dp"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="350dp"
+        android:layout_marginTop="120dp"
         android:backgroundTint="@color/darkBlue"
+
         android:text="You're text will appear right here :)"
 
         />
     <Button
         android:id="@+id/startScanButton2"
         android:layout_width="250dp"
-        android:layout_height="80dp"
+        android:layout_height="60dp"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="400dp"
         android:backgroundTint="@color/darkBlue"
-        android:text="Text erfasssen"
+        android:text="Bild aufnehmen"
         android:textSize="20sp"
         android:background="@drawable/page2"
         />
@@ -40,12 +41,26 @@
     <Button
         android:id="@+id/button2"
         android:layout_width="250dp"
-        android:layout_height="80dp"
+        android:layout_height="70dp"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="500dp"
-        android:backgroundTint="@color/darkBlue"
-        android:text="Text scannen"
-        android:textSize="20sp" />
+        android:text="Text von Bild scannen"
+        android:textSize="20sp"
+        android:background="@drawable/page2"
+
+        />
+
+    <Button
+        android:id="@+id/safeButton"
+        android:layout_width="250dp"
+        android:layout_height="60dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="600dp"
+        android:text="Text speichern"
+        android:textSize="20sp"
+        android:background="@drawable/page2"
+        />
+
 
 
 </RelativeLayout>
