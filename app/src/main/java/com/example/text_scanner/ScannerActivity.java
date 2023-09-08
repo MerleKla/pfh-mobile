@@ -2,6 +2,8 @@ package com.example.text_scanner;
 
 import static android.Manifest.permission.CAMERA;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -11,6 +13,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,7 +33,9 @@ import com.google.mlkit.vision.text.TextRecognition;
 import com.google.mlkit.vision.text.TextRecognizer;
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
 
-;
+;import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 
 public class ScannerActivity extends AppCompatActivity {
@@ -38,20 +43,26 @@ public class ScannerActivity extends AppCompatActivity {
     //Code von youtube https://www.youtube.com/watch?v=wFHR-dR7TpQ Min.20
     private ImageView erfassenIV;  //captureIV
     private TextView resultatTV;
-    private Button aufnehmenBtn, erfassenBtn;
+    private Button aufnehmenBtn, erfassenBtn, speichernBtn;
     private Bitmap imageBitmap;
     static final int REQUEST_IMAGE_CAPTURE = 1;
+    EditText mEditText;
 
+
+    @SuppressLint("WrongViewCast")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scanner);
 
-        erfassenIV = findViewById(R.id.idIVLogo);
-        resultatTV = findViewById(R.id.textView);
+        erfassenIV = findViewById(R.id.idIVLogo1); //Foto
+        resultatTV = findViewById(R.id.textView);   //hier wird der Text angezeigt
         aufnehmenBtn = findViewById(R.id.startScanButton2);
         erfassenBtn = findViewById(R.id.button2);
+        speichernBtn = findViewById(R.id.safeButton);
 
+
+        //mEditText = findViewById(R.id.safeButton);
         erfassenBtn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
@@ -72,7 +83,15 @@ public class ScannerActivity extends AppCompatActivity {
             }
         });
 
+        speichernBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Methode zum erstellen und speichern des Textes --> detect text methode muss genutzt und abgespeichert werden
+                textSpeichern();
+            }
+        });
     }
+
 
     private boolean checkPermission(){
         int camPermission = ContextCompat.checkSelfPermission(getApplicationContext(), CAMERA);
@@ -121,7 +140,7 @@ public class ScannerActivity extends AppCompatActivity {
         TextRecognizer recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
         Task<Text>result=recognizer.process(image).addOnSuccessListener(new OnSuccessListener<Text>() {
             @Override
-            public void onSuccess(Text text) { //evtl muss hier @NonNull vor Text text
+            public void onSuccess(@NonNull Text text) { //evtl muss hier nicht @NonNull vor Text text
                 StringBuilder result = new StringBuilder();
                 for(Text.TextBlock block: text.getTextBlocks()){
                     String blockText = block.getText();
@@ -152,6 +171,26 @@ public class ScannerActivity extends AppCompatActivity {
 
 
 
+    }
+
+    //Codegrundlage von ChatGPT:
+    private void textSpeichern() {
+
+        TextView textView = findViewById(R.id.textView);
+        String textToSave = textView.getText().toString();
+        String dateiName = "Download\recentScan.txt";
+
+        try {
+            FileOutputStream fos = openFileOutput(dateiName, Context.MODE_PRIVATE);
+            fos.write(textToSave.getBytes());
+            fos.close();
+
+            Toast.makeText(this, "Scan in downloads gespeichert", Toast.LENGTH_SHORT).show();
+        } catch (IOException e) {
+            e.printStackTrace();
+
+            Toast.makeText(this, "Fehler beim Speichern der Datei", Toast.LENGTH_SHORT).show();
+        }
     }
 
 }

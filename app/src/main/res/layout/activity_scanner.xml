@@ -8,7 +8,7 @@
     tools:context=".ScannerActivity">
 
     <ImageView
-        android:id="@+id/idIVLogo"
+        android:id="@+id/idIVLogo1"
         android:layout_width="70dp"
         android:layout_height="70dp"
         android:layout_marginTop="20dp"
@@ -20,7 +20,7 @@
         android:layout_width="250dp"
         android:layout_height="240dp"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="120dp"
+        android:layout_marginTop="100dp"
         android:backgroundTint="@color/darkBlue"
 
         android:text="You're text will appear right here :)"
@@ -31,8 +31,7 @@
         android:layout_width="250dp"
         android:layout_height="60dp"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="400dp"
-        android:backgroundTint="@color/darkBlue"
+        android:layout_marginTop="360dp"
         android:text="Bild aufnehmen"
         android:textSize="20sp"
         android:background="@drawable/page2"
@@ -43,7 +42,7 @@
         android:layout_width="250dp"
         android:layout_height="70dp"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="500dp"
+        android:layout_marginTop="460dp"
         android:text="Text von Bild scannen"
         android:textSize="20sp"
         android:background="@drawable/page2"
@@ -55,7 +54,7 @@
         android:layout_width="250dp"
         android:layout_height="60dp"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="600dp"
+        android:layout_marginTop="570dp"
         android:text="Text speichern"
         android:textSize="20sp"
         android:background="@drawable/page2"
