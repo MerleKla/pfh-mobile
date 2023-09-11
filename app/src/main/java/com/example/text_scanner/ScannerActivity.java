@@ -10,7 +10,9 @@ import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -33,7 +35,8 @@ import com.google.mlkit.vision.text.TextRecognition;
 import com.google.mlkit.vision.text.TextRecognizer;
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
 
-;import java.io.FileNotFoundException;
+;import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -173,26 +176,47 @@ public class ScannerActivity extends AppCompatActivity {
 
     }
 
-    //Codegrundlage von ChatGPT:
-    private void textSpeichern() {
 
+     private void textSpeichern() {
         TextView textView = findViewById(R.id.textView);
         String textToSave = textView.getText().toString();
-        String dateiName = "Download\recentScan.txt";
 
-        try {
-            FileOutputStream fos = openFileOutput(dateiName, Context.MODE_PRIVATE);
-            fos.write(textToSave.getBytes());
-            fos.close();
+        // Verzeichnis "Downloads" im externen Speicher abrufen
+        File downloadsVerzeichnis = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
 
-            Toast.makeText(this, "Scan in downloads gespeichert", Toast.LENGTH_SHORT).show();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (!downloadsVerzeichnis.exists()) {
+            // Wenn das Verzeichnis nicht existiert, versuche es zu erstellen
+            if (downloadsVerzeichnis.mkdirs()) {
+                Log.d("Verzeichnis erstellt", "Das Verzeichnis wurde erstellt");
+            } else {
+                Log.e("Verzeichnis erstellen", "Fehler beim Erstellen des Verzeichnisses");
+            }
+        }
 
-            Toast.makeText(this, "Fehler beim Speichern der Datei", Toast.LENGTH_SHORT).show();
+        if (downloadsVerzeichnis.exists()) {
+            // Den Dateipfad im "Downloads"-Verzeichnis im externen Speicher festlegen
+            File datei = new File(downloadsVerzeichnis, "recentScan.txt");
+
+            try {
+                FileOutputStream fos = new FileOutputStream(datei);
+                fos.write(textToSave.getBytes());
+                fos.close();
+
+                Toast.makeText(this, "Scan im externen Downloads-Verzeichnis gespeichert", Toast.LENGTH_SHORT).show();
+            } catch (IOException e) {
+                e.printStackTrace();
+
+                Toast.makeText(this, "Fehler beim Speichern der Datei", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            // Fehlerbehandlung, falls das Verzeichnis nicht erstellt werden konnte
+            Toast.makeText(this, "Downloads-Verzeichnis im externen Speicher konnte nicht erstellt werden", Toast.LENGTH_SHORT).show();
         }
     }
 
+
+
+
+
+
 }
-
-
