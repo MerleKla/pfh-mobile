@@ -40,11 +40,15 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+//Code Grundlagen: https://codelabs.developers.google.com/codelabs/mlkit-android#6
+//Code Tutorial: https://www.youtube.com/watch?v=wFHR-dR7TpQ Min.20
+//Problembehandlung und Recherche via: https://developers.google.com/ml-kit/vision/text-recognition/v2/android?hl=de
+//Die Funktion textSpeichern() wurde mit Hilfe von ChatGPT erarbeitet
 
 public class ScannerActivity extends AppCompatActivity {
 
-    //Code von youtube https://www.youtube.com/watch?v=wFHR-dR7TpQ Min.20
-    private ImageView erfassenIV;  //captureIV
+
+    private ImageView erfassenIV;
     private TextView resultatTV;
     private Button aufnehmenBtn, erfassenBtn, speichernBtn;
     private Bitmap imageBitmap;
@@ -52,12 +56,19 @@ public class ScannerActivity extends AppCompatActivity {
     EditText mEditText;
 
 
+
+    /**
+     *Initialisiserungscode für die GUI und für die ClickListener
+     *
+     * @param savedInstanceState Speichern des Zustandes der Activity
+     */
     @SuppressLint("WrongViewCast")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scanner);
 
+        //Initialisierung der Elemente der Benutzeroberfläche
         erfassenIV = findViewById(R.id.idIVLogo1); //Foto
         resultatTV = findViewById(R.id.textView);   //hier wird der Text angezeigt
         aufnehmenBtn = findViewById(R.id.startScanButton2);
@@ -65,7 +76,29 @@ public class ScannerActivity extends AppCompatActivity {
         speichernBtn = findViewById(R.id.safeButton);
 
 
-        //mEditText = findViewById(R.id.safeButton);
+        /**
+         *Ereignis, wenn "Aufnehmen" Button gedrückt wird. Prüft die Kameraerlaubnis und erfasst ein Bild oder fordert die Erlaubnis neu an
+         * @param v die view auf die geklickt wurde
+         *
+         */
+        aufnehmenBtn.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                if(checkPermission()){
+                    bildErfassen();
+                }
+                else {
+                    requestPermission();
+                }
+            }
+        });
+
+
+        /**
+         *Ereignis, wenn "Text von Bild scannen" Button gedrückt wird. Ruft die detectText() Methode auf.
+         * @param v die view auf die geklickt wurde
+         *
+         */
         erfassenBtn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
@@ -74,37 +107,44 @@ public class ScannerActivity extends AppCompatActivity {
             }
         });
 
-        aufnehmenBtn.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-              if(checkPermission()){
-                   bildErfassen();
-               }
-               else {
-                   requestPermission();
-               }
-            }
-        });
 
+        /**
+         *Ereignis wenn "Speichern" Button gedrückt wird. Ruft die textSpeichern() Methode auf.
+         * @param v die view auf die geklickt wurde
+         *
+         */
         speichernBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Methode zum erstellen und speichern des Textes --> detect text methode muss genutzt und abgespeichert werden
                 textSpeichern();
             }
         });
     }
 
+    /**
+     *Überprüfen der Kameraberechtigung
+     * @return boolean camPermission Gibt zurück, ob die Erlaubnis erteilt ist
+     *
+     */
 
     private boolean checkPermission(){
         int camPermission = ContextCompat.checkSelfPermission(getApplicationContext(), CAMERA);
         return camPermission == PackageManager.PERMISSION_GRANTED;
     }
+
+
+    /**
+     *Anfordern der Kameraberechtigung
+     */
     private void requestPermission(){
         int PERMISSION_CODE = 200;
         ActivityCompat.requestPermissions(this,new String[]{CAMERA}, PERMISSION_CODE);
     }
 
+
+    /**
+     * Kamera öffnen und Bildaufnahme ermöglichen
+     */
     private void bildErfassen(){ //ab if von Hand geschrieben
         Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if(takePicture.resolveActivity(getPackageManager())!=null){
@@ -112,6 +152,13 @@ public class ScannerActivity extends AppCompatActivity {
         }
     }
 
+
+    /**
+     * Feststellen, ob die Berechtigung erteilt wurde oder nicht und darüber informieren
+     *  @param requestCode Der Anforderungscode, der bei der Berechtigungsanfrage verwendet wurde.
+     *  @param permissions Das Array der angeforderten Berechtigungen.
+     *  @param grantResults Ein Array, das das Ergebnis der Berechtigungsanfrage für jede angeforderte Berechtigung enthält.
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -127,6 +174,13 @@ public class ScannerActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Aufgenommenes Bild weiterverarbeiten. Wird aufgerufen, um auf das Ergebnis einer Aktivität für die Bildaufnahme zu reagieren.
+     *
+     * @param requestCode Der Anforderungscode, der bei der Aktivitätsanforderung verwendet wurde.
+     * @param resultCode Der Ergebniscode, der den Erfolg oder das Scheitern der Aktivität anzeigt.
+     * @param data Die Intent-Daten, die das Ergebnis der Aktivität enthalten, einschließlich des aufgenommenen Bilds.
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -137,13 +191,17 @@ public class ScannerActivity extends AppCompatActivity {
         }
     }
 
-    //MLKIt relevante Klasse -> VM
+
+    /**
+     * MLKIt relevante Klasse, Virtual Machine kommt zum Einsatz
+     * Methode zur Texterkennung
+     */
     private void detectText() {
         InputImage image = InputImage.fromBitmap(imageBitmap, 0);//im Video normal int - nicht degree
         TextRecognizer recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
         Task<Text>result=recognizer.process(image).addOnSuccessListener(new OnSuccessListener<Text>() {
             @Override
-            public void onSuccess(@NonNull Text text) { //evtl muss hier nicht @NonNull vor Text text
+            public void onSuccess(@NonNull Text text) {
                 StringBuilder result = new StringBuilder();
                 for(Text.TextBlock block: text.getTextBlocks()){
                     String blockText = block.getText();
@@ -163,29 +221,27 @@ public class ScannerActivity extends AppCompatActivity {
                     }
                 }
             }
-
+        //Hinweisen auf Scheitern der Texterkennung
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Toast.makeText(ScannerActivity.this, "Texterkennung fehlgeschlagen"+e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
-
-
-
-
     }
 
 
+    /**
+     * Methode zum Speichern des aufgenommenden Textes
+     */
      private void textSpeichern() {
         TextView textView = findViewById(R.id.textView);
         String textToSave = textView.getText().toString();
 
-        // Verzeichnis "Downloads" im externen Speicher abrufen
         File downloadsVerzeichnis = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
 
+        //Verzeichnis erstellen, falls es noch nicht existiert
         if (!downloadsVerzeichnis.exists()) {
-            // Wenn das Verzeichnis nicht existiert, versuche es zu erstellen
             if (downloadsVerzeichnis.mkdirs()) {
                 Log.d("Verzeichnis erstellt", "Das Verzeichnis wurde erstellt");
             } else {
@@ -194,29 +250,19 @@ public class ScannerActivity extends AppCompatActivity {
         }
 
         if (downloadsVerzeichnis.exists()) {
-            // Den Dateipfad im "Downloads"-Verzeichnis im externen Speicher festlegen
             File datei = new File(downloadsVerzeichnis, "recentScan.txt");
-
             try {
                 FileOutputStream fos = new FileOutputStream(datei);
                 fos.write(textToSave.getBytes());
                 fos.close();
-
                 Toast.makeText(this, "Scan im externen Downloads-Verzeichnis gespeichert", Toast.LENGTH_SHORT).show();
             } catch (IOException e) {
                 e.printStackTrace();
-
                 Toast.makeText(this, "Fehler beim Speichern der Datei", Toast.LENGTH_SHORT).show();
             }
         } else {
-            // Fehlerbehandlung, falls das Verzeichnis nicht erstellt werden konnte
             Toast.makeText(this, "Downloads-Verzeichnis im externen Speicher konnte nicht erstellt werden", Toast.LENGTH_SHORT).show();
         }
     }
-
-
-
-
-
 
 }
